@@ -1,0 +1,18 @@
+<p class="text-3xl font-bold underline">Create a new post</p>
+
+<mat-card>
+  <mat-form-field>
+    <input matInput [(ngModel)]="postTitle" placeholder="Title" />
+  </mat-form-field>
+  <mat-form-field>
+    <textarea
+      matInput
+      rows="6"
+      [(ngModel)]="postContent"
+      placeholder="Content"
+    ></textarea>
+  </mat-form-field>
+  <button mat-raised-button color="accent" (click)="createPost()">
+    Create
+  </button>
+</mat-card>
