@@ -1,5 +1,5 @@
 <p class="text-3xl font-bold underline">Create a new post</p>
-
+@if (isLoading()) { <mat-spinner></mat-spinner>} @else {
 <mat-card>
   <mat-form-field>
     <input matInput [(ngModel)]="postTitle" placeholder="Title" />
@@ -12,7 +12,6 @@
       placeholder="Content"
     ></textarea>
   </mat-form-field>
-  <button mat-raised-button color="accent" (click)="createPost()">
-    Create
-  </button>
+  <button mat-raised-button color="accent" (click)="onClick()">Create</button>
 </mat-card>
+}

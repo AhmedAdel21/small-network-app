@@ -1,7 +1,21 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
+const mongoose = require("mongoose");
 
+const postsRoutes = require("./routes/posts");
+
+mongoose
+  .connect(
+    "mongodb+srv://ahmed12365488_db_user:U1Yb0rflCX8PkrOp@cluster0.kssainu.mongodb.net/max-project"
+  )
+  .then(() => {
+    console.log("Connected to database");
+  })
+  .catch((err) => {
+    console.log("Connection failed");
+    console.log(err);
+  });
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -13,7 +27,7 @@ app.use((req, res, next) => {
   );
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "GET, POST, PATCH, DELETE, OPTIONS"
+    "GET, POST, PATCH, PUT, DELETE, OPTIONS"
   );
   next();
 });
@@ -22,29 +36,8 @@ app.use((req, res, next) => {
   console.log("first middleware running");
   next();
 });
-const posts = [
-  { id: "1", title: "First Post", content: "This is the first post" },
-  { id: "2", title: "Second Post", content: "This is the second post" },
-];
-app.post("/api/posts", (req, res, next) => {
-  console.log("post request received");
-  const post = req.body;
-  console.log(post);
-  posts.push(post);
-  res.status(201).json({
-    message: "Post added successfully",
-  });
-});
 
-app.get("/api/posts", (req, res, next) => {
-  console.log("posts middleware running");
-
-  res.status(200).json({
-    message: "Posts fetched successfully",
-    posts: posts,
-  });
-});
-
+app.use("/api/posts", postsRoutes);
 // app.listen(3000, () => {
 //   console.log("Server is running on port 3000");
 // });iojhio

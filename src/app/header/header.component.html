@@ -1,3 +1,22 @@
-<mat-toolbar color="primary">
-  <span>My Application</span>
+<mat-toolbar color="primary" class="header-toolbar">
+  <div class="header-container">
+    <div class="logo-section">
+      <mat-icon class="logo-icon">hub</mat-icon>
+      <a routerLink="/posts" class="logo-link">Small Network App</a>
+    </div>
+    <nav class="nav-section">
+      <a routerLink="/posts" routerLinkActive="active" class="nav-link">
+        <mat-icon>list</mat-icon>
+        <span>Posts</span>
+      </a>
+      <a routerLink="/create" routerLinkActive="active" class="nav-link">
+        <mat-icon>add_circle</mat-icon>
+        <span>Create Post</span>
+      </a>
+      <a routerLink="/edit" routerLinkActive="active" class="nav-link">
+        <mat-icon>edit</mat-icon>
+        <span>Edit Post</span>
+      </a>
+    </nav>
+  </div>
 </mat-toolbar>
