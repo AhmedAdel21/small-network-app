@@ -1,17 +1,91 @@
-<p class="text-3xl font-bold underline">Create a new post</p>
-@if (isLoading()) { <mat-spinner></mat-spinner>} @else {
-<mat-card>
-  <mat-form-field>
-    <input matInput [(ngModel)]="postTitle" placeholder="Title" />
-  </mat-form-field>
-  <mat-form-field>
-    <textarea
-      matInput
-      rows="6"
-      [(ngModel)]="postContent"
-      placeholder="Content"
-    ></textarea>
-  </mat-form-field>
-  <button mat-raised-button color="accent" (click)="onClick()">Create</button>
-</mat-card>
+<div class="form-header">
+  <h2>@if (mode === 'edit') { Edit Post } @else { Create a New Post }</h2>
+</div>
+
+@if (isLoading()) { 
+  <div class="spinner-container">
+    <mat-spinner></mat-spinner>
+  </div>
+} @else {
+  <mat-card>
+    <form #postForm="ngForm" (ngSubmit)="onSubmit(postForm)">
+      <mat-form-field appearance="outline">
+        <mat-label>Title</mat-label>
+        <input 
+          matInput 
+          type="text"
+          name="title"
+          [(ngModel)]="postTitle" 
+          placeholder="Enter post title"
+          required
+          minlength="3"
+          #titleInput="ngModel"
+        />
+        @if (titleInput.invalid && (titleInput.dirty || titleInput.touched)) {
+          <mat-error>
+            @if (titleInput.errors?.['required']) {
+              Title is required
+            }
+            @if (titleInput.errors?.['minlength']) {
+              Title must be at least 3 characters long
+            }
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Content</mat-label>
+        <textarea
+          matInput
+          rows="6"
+          name="content"
+          [(ngModel)]="postContent"
+          placeholder="Enter post content"
+          required
+          minlength="10"
+          #contentInput="ngModel"
+        ></textarea>
+        @if (contentInput.invalid && (contentInput.dirty || contentInput.touched)) {
+          <mat-error>
+            @if (contentInput.errors?.['required']) {
+              Content is required
+            }
+            @if (contentInput.errors?.['minlength']) {
+              Content must be at least 10 characters long
+            }
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <div class="button-container">
+        <button
+          class="custom-button"
+          mat-stroked-button
+          type="button"
+          (click)="inputFile.click()"
+        >
+          <mat-icon>image</mat-icon>
+          Pick Image
+        </button>
+        <input 
+          type="file" 
+          #inputFile 
+          accept="image/*"
+          (change)="onImagePicked($event)"
+          style="display: none;"
+        />
+        
+        <button
+          class="custom-button"
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="postForm.invalid"
+        >
+          <mat-icon>@if (mode === 'edit') { save } @else { add_circle }</mat-icon>
+          @if (mode === 'edit') { Update Post } @else { Create Post }
+        </button>
+      </div>
+    </form>
+  </mat-card>
 }

@@ -1,18 +1,17 @@
-import { Component, inject, input, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
+import { FormsModule, NgForm } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { PostServiceService } from '../post-service/post-service.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { OnInit } from '@angular/core';
 import { Post } from '../post-service/post.model';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { Router } from '@angular/router';
-enum Mode {
-  CREATE = 'create',
-  EDIT = 'edit',
-}
+
+type Mode = 'create' | 'edit';
+
 @Component({
   selector: 'app-post-create',
   imports: [
@@ -20,66 +19,83 @@ enum Mode {
     MatInputModule,
     MatCardModule,
     MatButtonModule,
+    MatIconModule,
     MatProgressSpinner,
   ],
   templateUrl: './post-create.component.html',
   styleUrl: './post-create.component.css',
 })
 export class PostCreateComponent implements OnInit {
-  postContent = signal<string>('');
-  postTitle = signal<string>('');
-  postSerivce = inject(PostServiceService);
-  route = inject(ActivatedRoute);
-  router = inject(Router);
-  postId: string = '';
-  mode: Mode = Mode.CREATE;
+  postContent = '';
+  postTitle = '';
+  selectedImage: File | null = null;
+  
+  private postService = inject(PostServiceService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  
+  postId = '';
+  mode: Mode = 'create';
   isLoading = signal<boolean>(true);
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
-      console.log(params);
       if (params['id']) {
-        this.mode = Mode.EDIT;
+        this.mode = 'edit';
         this.postId = params['id'];
-        this.postSerivce.getPost(this.postId).subscribe((post: Post) => {
-          this.postTitle.set(post.title);
-          this.postContent.set(post.description);
+        this.postService.getPost(this.postId).subscribe((post: Post) => {
+          this.postTitle = post.title;
+          this.postContent = post.description;
         });
       }
       this.isLoading.set(false);
     });
   }
-  onClick() {
-    switch (this.mode) {
-      case Mode.CREATE:
-        this.createPost();
-        break;
-      case Mode.EDIT:
-        this.updatePost();
-        break;
+
+  onSubmit(form: NgForm): void {
+    if (form.invalid) {
+      return;
+    }
+
+    this.isLoading.set(true);
+    
+    if (this.mode === 'create') {
+      this.createPost();
+    } else {
+      this.updatePost();
     }
   }
-  async updatePost() {
+
+  onImagePicked(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      this.selectedImage = file;
+      console.log('Image selected:', file.name);
+    }
+  }
+
+  private async updatePost(): Promise<void> {
     console.log('Updating post...');
-    this.isLoading.set(true);
-    const updatedPost = await this.postSerivce.updatePost({
+    
+    const updatedPost = await this.postService.updatePost({
       id: this.postId,
-      title: this.postTitle(),
-      description: this.postContent(),
+      title: this.postTitle,
+      description: this.postContent,
     });
-    console.log(updatedPost);
+    
+    console.log('Post updated:', updatedPost);
     this.router.navigate(['/posts']);
   }
-  createPost() {
+
+  private createPost(): void {
     console.log('Creating post...');
-    this.isLoading.set(true);
-    this.postSerivce.addPost({
+    
+    this.postService.addPost({
       id: crypto.randomUUID(),
-      title: this.postTitle(),
-      description: this.postContent(),
+      title: this.postTitle,
+      description: this.postContent,
     });
+    
     this.router.navigate(['/posts']);
-    // this.postContent.set('');
-    // this.postTitle.set('');
   }
 }
