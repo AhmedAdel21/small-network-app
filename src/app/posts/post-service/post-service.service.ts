@@ -17,7 +17,7 @@ export class PostServiceService {
   getPostsListner() {
     return this.postsUpdated.asObservable();
   }
-  addPost(post: Post) {
+  async addPost(post: Post) {
     this.http
       .post<PostResponse>(this.apiUrl, post)
       .pipe(
