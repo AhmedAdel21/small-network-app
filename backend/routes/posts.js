@@ -28,17 +28,20 @@ const upload = multer({ storage: storage });
 
 router.post("", upload.single("image"), async (req, res, next) => {
   console.log("post request received");
+  const url = req.protocol + "://" + req.get("host");
   const post = new Post({
     title: req.body.title,
     description: req.body.description,
+    imagePath: url + "/uploads/images/" + req.file.filename,
   });
   try {
-    await post.save();
+    const savedPost = await post.save();
     console.log("post saved successfully");
     console.log("post", post);
+    console.log("savedPost", savedPost);
     res.status(201).json({
       message: "Post added successfully",
-      post: post,
+      post: savedPost,
     });
   } catch (error) {
     res.status(500).json({

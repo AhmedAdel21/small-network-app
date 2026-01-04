@@ -9,11 +9,14 @@
     <mat-expansion-panel-header>
       <mat-panel-title> {{ post.title }}</mat-panel-title>
     </mat-expansion-panel-header>
+    <p>{{ post.description }}</p>
+    <div class="image-container">
+      <img [src]="post.imagePath" [alt]="post.title" />
+    </div>
     <mat-action-row>
       <button matButton [routerLink]="['/edit', post.id]">EDIT</button>
       <button matButton (click)="onDelete(post.id)">DELETE</button>
     </mat-action-row>
-    <p>{{ post.description }}</p>
   </mat-expansion-panel>
   }
 </mat-accordion>

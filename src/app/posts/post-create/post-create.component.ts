@@ -66,7 +66,7 @@ export class PostCreateComponent implements OnInit {
           this.form?.setValue({
             title: post.title,
             content: post.description,
-            image: null,
+            image: post.imagePath,
           });
         });
       }

@@ -31,6 +31,7 @@ export class PostServiceService {
             id: post._id,
             title: post.title,
             description: post.description,
+            imagePath: post.imagePath,
           };
         })
       )
@@ -52,6 +53,7 @@ export class PostServiceService {
               id: post._id,
               title: post.title,
               description: post.description,
+              imagePath: post.imagePath,
             };
           });
         })
