@@ -113,6 +113,7 @@ export class PostCreateComponent implements OnInit {
       id: this.postId,
       title: this.form?.value.title || '',
       description: this.form?.value.content || '',
+      image: this.form?.value.image as File,
     });
 
     console.log('Post updated:', updatedPost);
@@ -126,6 +127,7 @@ export class PostCreateComponent implements OnInit {
       id: crypto.randomUUID(),
       title: this.form?.value.title || '',
       description: this.form?.value.content || '',
+      image: this.form?.value.image as File,
     });
 
     this.router.navigate(['/posts']);

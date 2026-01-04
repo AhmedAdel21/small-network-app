@@ -18,8 +18,12 @@ export class PostServiceService {
     return this.postsUpdated.asObservable();
   }
   async addPost(post: Post) {
+    const formData = new FormData();
+    formData.append('title', post.title);
+    formData.append('description', post.description);
+    formData.append('image', post.image as File);
     this.http
-      .post<PostResponse>(this.apiUrl, post)
+      .post<PostResponse>(this.apiUrl, formData)
       .pipe(
         map((response: PostResponse) => {
           const post = response.post;
