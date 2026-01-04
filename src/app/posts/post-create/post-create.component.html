@@ -51,7 +51,7 @@
       </mat-error>
       }
     </mat-form-field>
-    @if (imagePreview !== '' && form?.value.image?.valid) {
+    @if (imagePreview !== '' && form?.get('image')?.valid) {
     <div class="image-container">
       <img [src]="imagePreview" [alt]="form?.value.title || ''" />
 
