@@ -1,5 +1,7 @@
-@if (isLoading()) { <mat-spinner></mat-spinner>} @else { @if (posts.length > 0)
-{
+@if (posts.length > 0){ @if (isLoading()) {
+
+<mat-spinner></mat-spinner>
+} @else {
 <mat-accordion>
   @for (post of posts; track post.id) {
   <mat-expansion-panel
@@ -20,6 +22,19 @@
   </mat-expansion-panel>
   }
 </mat-accordion>
+}
+
+<mat-paginator
+  #paginator
+  class="app-paginator"
+  (page)="handlePageEvent($event)"
+  [length]="totalPosts"
+  [pageSize]="postsPerPage"
+  [pageIndex]="currentPage"
+  [pageSizeOptions]="pageSizeOptions"
+>
+</mat-paginator>
+
 } @else {
 <p class="info-text mat-body-1">No posts found!</p>
-} }
+}

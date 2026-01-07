@@ -1,6 +1,7 @@
 export interface PostsResponse {
   message: string;
   posts: Post[];
+  totalPosts: number;
 }
 export interface PostResponse {
   message: string;
@@ -12,4 +13,8 @@ export interface Post {
   title: string;
   description: string;
   image?: File | string;
+}
+export interface PostsData {
+  posts: Post[];
+  totalPosts: number;
 }

@@ -91,14 +91,25 @@ router.put("", upload.single("image"), async (req, res, next) => {
   }
 });
 router.get("", async (req, res, next) => {
-  console.log("posts middleware running");
+  const pageSize = req.query.pageSize;
+  const currentPage = req.query.page;
+  const postQuery = Post.find();
+
+  if (pageSize && currentPage) {
+    postQuery.skip(pageSize * currentPage);
+    postQuery.limit(pageSize);
+  }
+
   try {
-    const posts = await Post.find();
+    const posts = await postQuery.exec();
+    const postCount = await Post.countDocuments();
     res.status(200).json({
       message: "Posts fetched successfully",
       posts: posts,
+      totalPosts: postCount,
     });
   } catch (error) {
+    console.log("error", error);
     res.status(500).json({
       message: "Posts fetching failed",
     });

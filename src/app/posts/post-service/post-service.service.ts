@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Post, PostResponse, PostsResponse } from './post.model';
+import { Post, PostResponse, PostsData, PostsResponse } from './post.model';
 import { map, pipe, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 @Injectable({
@@ -7,12 +7,16 @@ import { HttpClient } from '@angular/common/http';
 })
 export class PostServiceService {
   private posts: Post[] = [];
-  private postsUpdated = new Subject<Post[]>();
+  private postsUpdated = new Subject<PostsData>();
+  totalPosts = 0;
   constructor(private http: HttpClient) {}
   apiUrl = 'http://localhost:3000/api/posts';
 
   notifyPostsListners() {
-    this.postsUpdated.next([...this.posts]);
+    this.postsUpdated.next({
+      posts: [...this.posts],
+      totalPosts: this.totalPosts,
+    });
   }
   getPostsListner() {
     return this.postsUpdated.asObservable();
@@ -39,28 +43,36 @@ export class PostServiceService {
         console.log('addPost response', response);
         console.log(response);
         this.posts.push(response);
+        this.totalPosts++;
         this.notifyPostsListners();
       });
   }
-  getPosts() {
+  getPosts(pageSize: number, currentPage: number) {
     console.log('getPosts service');
     this.http
-      .get<PostsResponse>(this.apiUrl)
+      .get<PostsResponse>(this.apiUrl, {
+        params: { pageSize: pageSize, page: currentPage },
+      })
       .pipe(
         map((response: PostsResponse) => {
-          return response.posts.map((post: any) => {
-            return {
-              id: post._id,
-              title: post.title,
-              description: post.description,
-              image: post.imagePath,
-            };
-          });
+          return {
+            totalPosts: response.totalPosts,
+            posts: response.posts.map((post: any) => {
+              return {
+                id: post._id,
+                title: post.title,
+                description: post.description,
+                image: post.imagePath,
+              };
+            }),
+          };
         })
       )
-      .subscribe((response: Post[]) => {
+      .subscribe((response: PostsData) => {
         console.log(response);
-        this.posts = response;
+        this.posts = response.posts;
+        this.totalPosts = response.totalPosts;
+
         this.notifyPostsListners();
       });
   }
@@ -69,6 +81,7 @@ export class PostServiceService {
     this.http.delete(`${this.apiUrl}/${id}`).subscribe((response: any) => {
       console.log(response);
       this.posts = [...this.posts.filter((post) => post.id !== id)];
+      this.totalPosts--;
       this.notifyPostsListners();
     });
   }
