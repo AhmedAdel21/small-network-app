@@ -21,7 +21,7 @@ export class PostServiceService {
     const formData = new FormData();
     formData.append('title', post.title);
     formData.append('description', post.description);
-    formData.append('image', post.image as File);
+    formData.append('image', post.image as File, post.title);
     this.http
       .post<PostResponse>(this.apiUrl, formData)
       .pipe(
@@ -31,7 +31,7 @@ export class PostServiceService {
             id: post._id,
             title: post.title,
             description: post.description,
-            imagePath: post.imagePath,
+            image: post.imagePath,
           };
         })
       )
@@ -53,7 +53,7 @@ export class PostServiceService {
               id: post._id,
               title: post.title,
               description: post.description,
-              imagePath: post.imagePath,
+              image: post.imagePath,
             };
           });
         })
@@ -73,8 +73,19 @@ export class PostServiceService {
     });
   }
   updatePost(post: Post) {
+    console.log('updatePost service', post);
+    let postData: FormData | Post = post;
+    if (typeof post.image === 'string') {
+    } else {
+      postData = new FormData();
+      postData.append('id', post.id);
+      postData.append('title', post.title);
+      postData.append('description', post.description);
+      postData.append('image', post.image as File, post.title);
+    }
+
     return this.http
-      .put<PostResponse>(`${this.apiUrl}`, post)
+      .put<PostResponse>(`${this.apiUrl}`, postData)
       .pipe(
         map((response: PostResponse) => {
           const post = response.post;
@@ -82,6 +93,7 @@ export class PostServiceService {
             id: post._id,
             title: post.title,
             description: post.description,
+            image: post.imagePath,
           };
         })
       )
@@ -98,6 +110,7 @@ export class PostServiceService {
           id: post._id,
           title: post.title,
           description: post.description,
+          image: post.imagePath,
         };
       })
     );

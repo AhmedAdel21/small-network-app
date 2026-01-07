@@ -51,7 +51,45 @@ router.post("", upload.single("image"), async (req, res, next) => {
 
   console.log(post);
 });
+router.put("", upload.single("image"), async (req, res, next) => {
+  console.log("put request received", req.body);
+  console.log("put request received file", req.file);
+  try {
+    let imagePath;
+    if (req.file) {
+      const url = req.protocol + "://" + req.get("host");
+      imagePath = url + "/uploads/images/" + req.file.filename;
+    } else {
+      imagePath = req.body.imagePath;
+    }
 
+    const post = new Post({
+      _id: req.body.id,
+      title: req.body.title,
+      description: req.body.description,
+      imagePath: imagePath,
+    });
+    console.log("post", post);
+    const updatedPost = await Post.updateOne(
+      { _id: post._id },
+      {
+        $set: {
+          title: post.title,
+          description: post.description,
+          imagePath: post.imagePath,
+        },
+      }
+    );
+    res.status(200).json({
+      message: "Post updated successfully",
+      post: post,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Post update failed",
+    });
+  }
+});
 router.get("", async (req, res, next) => {
   console.log("posts middleware running");
   try {
@@ -93,27 +131,5 @@ router.get("/:id", async (req, res, next) => {
     });
   }
 });
-router.put("", async (req, res, next) => {
-  console.log("put request received", req.body);
-  try {
-    const post = new Post({
-      _id: req.body.id,
-      title: req.body.title,
-      description: req.body.description,
-    });
 
-    const updatedPost = await Post.updateOne(
-      { _id: post._id },
-      { $set: { title: post.title, description: post.description } }
-    );
-    res.status(200).json({
-      message: "Post updated successfully",
-      post: post,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Post update failed",
-    });
-  }
-});
 module.exports = router;

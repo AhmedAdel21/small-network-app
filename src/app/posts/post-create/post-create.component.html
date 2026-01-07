@@ -51,9 +51,13 @@
       </mat-error>
       }
     </mat-form-field>
-    @if (imagePreview !== '' && form?.get('image')?.valid) {
+    @if ((imagePreview !== '' || form?.value.image !== '') &&
+    (form?.get('image')?.valid || form?.value.image !== '')) {
     <div class="image-container">
-      <img [src]="imagePreview" [alt]="form?.value.title || ''" />
+      <img
+        [src]="imagePreview.length === 0 ? form?.value.image : imagePreview"
+        [alt]="form?.value.title || ''"
+      />
 
       <!-- <button
         class="custom-button"

@@ -52,7 +52,7 @@ export class PostCreateComponent implements OnInit {
         Validators.required,
         Validators.minLength(10),
       ]),
-      image: new FormControl<File | null>(null, {
+      image: new FormControl<File | string | null>(null, {
         validators: [Validators.required],
         asyncValidators: [mimeType],
       }),
@@ -63,10 +63,11 @@ export class PostCreateComponent implements OnInit {
         this.mode = 'edit';
         this.postId = params['id'];
         this.postService.getPost(this.postId).subscribe((post: Post) => {
+          console.log('post', post);
           this.form?.setValue({
             title: post.title,
             content: post.description,
-            image: post.imagePath,
+            image: post.image,
           });
         });
       }
@@ -113,7 +114,7 @@ export class PostCreateComponent implements OnInit {
       id: this.postId,
       title: this.form?.value.title || '',
       description: this.form?.value.content || '',
-      image: this.form?.value.image as File,
+      image: this.form?.value.image,
     });
 
     console.log('Post updated:', updatedPost);
@@ -127,7 +128,7 @@ export class PostCreateComponent implements OnInit {
       id: crypto.randomUUID(),
       title: this.form?.value.title || '',
       description: this.form?.value.content || '',
-      image: this.form?.value.image as File,
+      image: this.form?.value.image,
     });
 
     this.router.navigate(['/posts']);
