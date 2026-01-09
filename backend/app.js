@@ -4,12 +4,11 @@ const app = express();
 const mongoose = require("mongoose");
 const path = require("path");
 
-const postsRoutes = require("./routes/posts");
 
+const authRoutes = require("./auth/auth.routes");
+const postsRoutes = require("./routes/posts");
 mongoose
-  .connect(
-    "mongodb+srv://ahmed12365488_db_user:U1Yb0rflCX8PkrOp@cluster0.kssainu.mongodb.net/max-project"
-  )
+  .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("Connected to database");
   })
@@ -43,6 +42,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use("/api/auth", authRoutes);
 app.use("/api/posts", postsRoutes);
 // app.listen(3000, () => {
 //   console.log("Server is running on port 3000");
