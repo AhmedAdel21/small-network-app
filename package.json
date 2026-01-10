@@ -20,6 +20,7 @@
     "@angular/platform-browser": "^19.2.0",
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
+    "@types/mongoose-unique-validator": "^1.0.9",
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.1",
     "cookie-parser": "^1.4.7",

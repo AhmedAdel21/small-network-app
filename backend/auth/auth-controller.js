@@ -1,12 +1,12 @@
-import { hashPassword, comparePassword } from "../auth/auth.service.js";
-import {
+const { hashPassword, comparePassword } = require("./auth-service");
+const {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
-} from "./token.service.js";
-import User from "../models/user.model.js";
+} = require("./token-service");
+const User = require("../models/user-model");
 
-export const register = async (req, res) => {
+const register = async (req, res) => {
   const { email, password } = req.body;
 
   if (await User.findOne({ email })) {
@@ -28,7 +28,7 @@ export const register = async (req, res) => {
   }
 };
 
-export const login = async (req, res) => {
+const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email }).select("+password");
 
@@ -51,7 +51,7 @@ export const login = async (req, res) => {
   }
 };
 
-export const refresh = async (req, res) => {
+const refresh = async (req, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken) return res.status(401).json({ message: "Unauthorized" });
 
@@ -71,7 +71,7 @@ export const refresh = async (req, res) => {
   }
 };
 
-export const logout = async (req, res) => {
+const logout = async (req, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken) return res.status(401).json({ message: "Unauthorized" });
 
@@ -87,3 +87,5 @@ export const logout = async (req, res) => {
     res.status(500).json({ message: "Logout failed" });
   }
 };
+
+module.exports = { register, login, refresh, logout };

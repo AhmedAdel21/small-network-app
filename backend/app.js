@@ -3,9 +3,8 @@ const bodyParser = require("body-parser");
 const app = express();
 const mongoose = require("mongoose");
 const path = require("path");
-
-
-const authRoutes = require("./auth/auth.routes");
+require("dotenv").config();
+const authRoutes = require("./auth/auth-routes");
 const postsRoutes = require("./routes/posts");
 mongoose
   .connect(process.env.MONGO_URI)
