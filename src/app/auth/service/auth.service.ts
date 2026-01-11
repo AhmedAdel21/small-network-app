@@ -12,6 +12,7 @@ export class AuthService {
   private authData: AuthData | null = null;
   private authUpdated = new BehaviorSubject<boolean>(false);
   private router = inject(Router);
+  private timerTimeout: any;
   constructor(private http: HttpClient) {}
 
   notifyAuthListners(isLoggedIn: boolean) {
@@ -31,20 +32,9 @@ export class AuthService {
   }
   register(authData: AuthRequest) {
     return this.http
-      .post<AuthDataResponse>(`${this.apiUrl}/register`, authData)
-      .pipe(
-        map((response: AuthDataResponse) => {
-          return {
-            id: response.id,
-            email: response.email,
-            accessToken: response.accessToken ?? '',
-            refreshToken: response.refreshToken ?? '',
-          };
-        })
-      )
-      .subscribe((response: AuthData) => {
-        this.authData = response;
-        console.log('register auth data in service', this.authData);
+      .post<{ message: string }>(`${this.apiUrl}/register`, authData)
+      .subscribe(({ message }) => {
+        console.log('register message in service', message);
 
         this.router.navigate(['/login']);
       });
@@ -59,6 +49,7 @@ export class AuthService {
             email: response.email,
             accessToken: response.accessToken ?? '',
             refreshToken: response.refreshToken ?? '',
+            expiresIn: response.expiresIn ?? 0,
           };
         })
       )
@@ -69,11 +60,41 @@ export class AuthService {
           response.accessToken.length > 0 &&
           response.refreshToken.length > 0
         ) {
+          this.setAuthData(response);
+          const expiresIn = response.expiresIn * 1000;
+          this.timerTimeout = setTimeout(() => {
+            this.logoutFunctionality();
+          }, expiresIn);
           this.notifyAuthListners(true);
         } else {
           this.notifyAuthListners(false);
         }
       });
+  }
+  setAuthData(authData: AuthData) {
+    this.authData = authData;
+    console.log('setting auth data in service', this.authData);
+    localStorage.setItem('accessToken', authData.accessToken);
+    localStorage.setItem('refreshToken', authData.refreshToken);
+    localStorage.setItem('expiresIn', authData.expiresIn.toString() ?? '0');
+    localStorage.setItem('id', authData.id);
+    localStorage.setItem('email', authData.email);
+  }
+  private logoutFunctionality() {
+    console.log('logout functionality in service');
+    clearTimeout(this.timerTimeout);
+    this.timerTimeout = null;
+
+    this.authData = null;
+
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('expiresIn');
+    localStorage.removeItem('id');
+    localStorage.removeItem('email');
+
+    this.notifyAuthListners(false);
+    this.router.navigate(['/login']);
   }
   logout() {
     return this.http
@@ -81,9 +102,7 @@ export class AuthService {
         refreshToken: this.authData?.refreshToken,
       })
       .subscribe((response: any) => {
-        this.authData = null;
-        this.notifyAuthListners(false);
-        this.router.navigate(['/login']);
+        this.logoutFunctionality();
       });
   }
 }

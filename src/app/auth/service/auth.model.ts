@@ -8,6 +8,7 @@ export interface AuthDataResponse {
   email: string;
   accessToken?: string;
   refreshToken?: string;
+  expiresIn?: number;
 }
 
 export interface AuthData {
@@ -15,4 +16,5 @@ export interface AuthData {
   email: string;
   accessToken: string;
   refreshToken: string;
+  expiresIn: number;
 }

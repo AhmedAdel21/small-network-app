@@ -48,9 +48,14 @@ const login = async (req, res) => {
     user.refreshToken = refreshToken;
     await user.save();
     console.log("user saved");
-    res
-      .status(200)
-      .json({ message: "Login successful", accessToken, refreshToken });
+    res.status(200).json({
+      message: "Login successful",
+      id: user._id.toString(),
+      email: user.email,
+      accessToken,
+      refreshToken,
+      expiresIn: parseInt(process.env.ACCESS_TOKEN_EXPIRES) * 60,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Login failed" });
