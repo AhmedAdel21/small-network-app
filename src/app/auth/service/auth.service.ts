@@ -61,6 +61,7 @@ export class AuthService {
       )
       .subscribe((response: AuthData) => {
         this.authData = response;
+        console.log('login auth data in service', this.authData);
         if (
           response.accessToken.length > 0 &&
           response.refreshToken.length > 0

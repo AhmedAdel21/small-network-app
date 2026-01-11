@@ -38,8 +38,12 @@ export class LoginComponent implements OnInit {
     });
   }
   onLogin(loginForm: NgForm): void {
+    console.log('login form', loginForm);
+    if (loginForm.invalid) {
+      console.log('invalid form');
+      return;
+    }
     this.isLoading.set(true);
-    console.log(loginForm);
     this.authService.login({
       email: loginForm.value.email,
       password: loginForm.value.password,
