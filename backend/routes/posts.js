@@ -92,6 +92,7 @@ router.put("", checkAuth, upload.single("image"), async (req, res, next) => {
   }
 });
 router.get("", async (req, res, next) => {
+  console.log("get request received", req.query);
   const pageSize = req.query.pageSize;
   const currentPage = req.query.page;
   const postQuery = Post.find();

@@ -21,6 +21,9 @@ export class AuthService {
   getAuthData(): AuthData | null {
     return this.authData;
   }
+  getToken(): string | null {
+    return this.authData?.accessToken ?? null;
+  }
   register(authData: AuthRequest) {
     return this.http
       .post<AuthDataResponse>(`${this.apiUrl}/register`, authData)
@@ -36,6 +39,7 @@ export class AuthService {
       )
       .subscribe((response: AuthData) => {
         this.authData = response;
+        console.log('register auth data in service', this.authData);
         if (
           response.accessToken.length > 0 &&
           response.refreshToken.length > 0

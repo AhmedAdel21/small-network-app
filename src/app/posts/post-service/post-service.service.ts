@@ -1,8 +1,9 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Post, PostResponse, PostsData, PostsResponse } from './post.model';
 import { map, pipe, Subject } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { API_URL } from '../../constants/network.constants';
+import { AuthService } from '../../auth/service/auth.service';
 @Injectable({
   providedIn: 'root',
 })
@@ -11,6 +12,7 @@ export class PostServiceService {
   private postsUpdated = new Subject<PostsData>();
   totalPosts = 0;
   private apiUrl = `${API_URL}/posts`;
+  private authService = inject(AuthService);
   constructor(private http: HttpClient) {}
 
   notifyPostsListners() {
@@ -27,8 +29,14 @@ export class PostServiceService {
     formData.append('title', post.title);
     formData.append('description', post.description);
     formData.append('image', post.image as File, post.title);
+    const token = this.authService.getToken();
+    console.log('token in addPost service', token);
     this.http
-      .post<PostResponse>(this.apiUrl, formData)
+      .post<PostResponse>(this.apiUrl, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .pipe(
         map((response: PostResponse) => {
           const post = response.post;
@@ -79,12 +87,20 @@ export class PostServiceService {
   }
   deletePost(id: string) {
     console.log('deletePost service', id);
-    this.http.delete(`${this.apiUrl}/${id}`).subscribe((response: any) => {
-      console.log(response);
-      this.posts = [...this.posts.filter((post) => post.id !== id)];
-      this.totalPosts--;
-      this.notifyPostsListners();
-    });
+    const token = this.authService.getToken();
+    console.log('token in deletePost service', token);
+    this.http
+      .delete(`${this.apiUrl}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .subscribe((response: any) => {
+        console.log(response);
+        this.posts = [...this.posts.filter((post) => post.id !== id)];
+        this.totalPosts--;
+        this.notifyPostsListners();
+      });
   }
   updatePost(post: Post) {
     console.log('updatePost service', post);
@@ -98,8 +114,14 @@ export class PostServiceService {
       postData.append('image', post.image as File, post.title);
     }
 
+    const token = this.authService.getToken();
+    console.log('token in updatePost service', token);
     return this.http
-      .put<PostResponse>(`${this.apiUrl}`, postData)
+      .put<PostResponse>(`${this.apiUrl}`, postData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .pipe(
         map((response: PostResponse) => {
           const post = response.post;

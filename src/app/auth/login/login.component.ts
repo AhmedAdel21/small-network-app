@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatCard } from '@angular/material/card';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -23,18 +23,23 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
   isLoading = signal<boolean>(false);
-
+  private destroyRef = inject(DestroyRef);
   private authService = inject(AuthService);
   private router = inject(Router);
   ngOnInit(): void {
-    this.authService.getAuthListner().subscribe((isLoggedIn: boolean) => {
-      this.isLoading.set(false);
+    const subscription = this.authService
+      .getAuthListner()
+      .subscribe((isLoggedIn: boolean) => {
+        this.isLoading.set(false);
 
-      if (isLoggedIn) {
-        this.router.navigate(['/posts']);
-      } else {
-        this.router.navigate(['/login']);
-      }
+        if (isLoggedIn) {
+          this.router.navigate(['/posts']);
+        } else {
+          this.router.navigate(['/login']);
+        }
+      });
+    this.destroyRef.onDestroy(() => {
+      subscription.unsubscribe();
     });
   }
   onLogin(loginForm: NgForm): void {
