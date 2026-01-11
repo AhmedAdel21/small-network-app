@@ -51,8 +51,8 @@ export class PostServiceService {
       .subscribe((response: Post) => {
         console.log('addPost response', response);
         console.log(response);
-        this.posts.push(response);
-        this.totalPosts++;
+        // this.posts.push(response);
+        // this.totalPosts++;
         this.notifyPostsListners();
       });
   }

@@ -61,10 +61,9 @@ export class AuthService {
           response.refreshToken.length > 0
         ) {
           this.setAuthData(response);
-          const expiresIn = response.expiresIn * 1000;
-          this.timerTimeout = setTimeout(() => {
-            this.logoutFunctionality();
-          }, expiresIn);
+
+          this.setAuthTimer(response.expiresIn);
+
           this.notifyAuthListners(true);
         } else {
           this.notifyAuthListners(false);
@@ -76,9 +75,50 @@ export class AuthService {
     console.log('setting auth data in service', this.authData);
     localStorage.setItem('accessToken', authData.accessToken);
     localStorage.setItem('refreshToken', authData.refreshToken);
-    localStorage.setItem('expiresIn', authData.expiresIn.toString() ?? '0');
-    localStorage.setItem('id', authData.id);
-    localStorage.setItem('email', authData.email);
+    const now = new Date().getTime();
+    const expiresInDate = new Date(now + authData.expiresIn * 1000);
+    localStorage.setItem('expiresInDate', expiresInDate.toISOString());
+  }
+  authInformation(): {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+  } | null {
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+    const expiresInDate = localStorage.getItem('expiresInDate');
+    if (!accessToken || !refreshToken || !expiresInDate) {
+      return null;
+    }
+    const now = new Date().getTime();
+    const expiresIn = new Date(expiresInDate).getTime() - now;
+    if (expiresIn <= 0) {
+      return null;
+    }
+    return { accessToken, refreshToken, expiresIn: expiresIn / 1000 };
+  }
+  setAuthTimer(expiresIn: number) {
+    console.log('setting auth timer in service', expiresIn);
+    this.timerTimeout = setTimeout(() => {
+      this.logoutFunctionality();
+    }, expiresIn * 1000);
+  }
+  autoAuth() {
+    const authInformation = this.authInformation();
+    console.log('auto auth in service', authInformation);
+    if (!authInformation) {
+      return;
+    }
+    this.authData = {
+      id: '',
+      email: '',
+      accessToken: authInformation.accessToken,
+      refreshToken: authInformation.refreshToken,
+      expiresIn: authInformation.expiresIn,
+    };
+    this.notifyAuthListners(true);
+
+    this.setAuthTimer(authInformation.expiresIn);
   }
   private logoutFunctionality() {
     console.log('logout functionality in service');
@@ -89,9 +129,7 @@ export class AuthService {
 
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    localStorage.removeItem('expiresIn');
-    localStorage.removeItem('id');
-    localStorage.removeItem('email');
+    localStorage.removeItem('expiresInDate');
 
     this.notifyAuthListners(false);
     this.router.navigate(['/login']);
