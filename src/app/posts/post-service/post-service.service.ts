@@ -1,7 +1,8 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Post, PostResponse, PostsData, PostsResponse } from './post.model';
 import { map, pipe, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { API_URL } from '../../constants/network.constants';
 @Injectable({
   providedIn: 'root',
 })
@@ -9,8 +10,8 @@ export class PostServiceService {
   private posts: Post[] = [];
   private postsUpdated = new Subject<PostsData>();
   totalPosts = 0;
+  private apiUrl = `${API_URL}/posts`;
   constructor(private http: HttpClient) {}
-  apiUrl = 'http://localhost:3000/api/posts';
 
   notifyPostsListners() {
     this.postsUpdated.next({

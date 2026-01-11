@@ -8,7 +8,7 @@ const User = require("../models/user-model");
 
 const register = async (req, res) => {
   const { email, password } = req.body;
-
+  console.log("email", email, "password", password);
   if (await User.findOne({ email })) {
     return res.status(409).json({ message: "User already exists" });
   }
@@ -29,19 +29,25 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
+  console.log("login controller");
+  console.log(req.body);
   const { email, password } = req.body;
+  console.log("email", email, "password", password);
   const user = await User.findOne({ email }).select("+password");
-
+  console.log("user", user);
   if (!user || !(await comparePassword(password, user.password))) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
+  console.log("user found");
   try {
+    console.log("generating tokens");
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
-
+    console.log("accessToken", accessToken);
+    console.log("refreshToken", refreshToken);
     user.refreshToken = refreshToken;
     await user.save();
-
+    console.log("user saved");
     res
       .status(200)
       .json({ message: "Login successful", accessToken, refreshToken });

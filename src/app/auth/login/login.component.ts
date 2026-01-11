@@ -1,10 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatCard } from '@angular/material/card';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { AuthService } from '../service/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -19,12 +21,28 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   isLoading = signal<boolean>(false);
 
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  ngOnInit(): void {
+    this.authService.getAuthListner().subscribe((isLoggedIn: boolean) => {
+      this.isLoading.set(false);
+
+      if (isLoggedIn) {
+        this.router.navigate(['/posts']);
+      } else {
+        this.router.navigate(['/login']);
+      }
+    });
+  }
   onLogin(loginForm: NgForm): void {
     this.isLoading.set(true);
     console.log(loginForm);
-    this.isLoading.set(false);
+    this.authService.login({
+      email: loginForm.value.email,
+      password: loginForm.value.password,
+    });
   }
 }
