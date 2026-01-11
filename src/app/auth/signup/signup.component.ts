@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatCard } from '@angular/material/card';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -6,7 +6,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../service/auth.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-signup',
@@ -21,17 +20,10 @@ import { Router } from '@angular/router';
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css',
 })
-export class SignupComponent implements OnInit {
+export class SignupComponent {
   isLoading = signal<boolean>(false);
   private authService = inject(AuthService);
-  private router = inject(Router);
-  ngOnInit(): void {
-    this.authService.getAuthListner().subscribe((isLoggedIn: boolean) => {
-      this.isLoading.set(false);
 
-      this.router.navigate(['/login']);
-    });
-  }
   onSignup(signupForm: NgForm): void {
     console.log('signup form', signupForm);
     if (signupForm.invalid) {
