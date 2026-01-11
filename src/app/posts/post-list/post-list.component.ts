@@ -1,19 +1,13 @@
-import {
-  Component,
-  computed,
-  inject,
-  OnInit,
-  signal,
-  OnDestroy,
-} from '@angular/core';
+import { Component, inject, OnInit, signal, DestroyRef } from '@angular/core';
 
 import { MatExpansionModule } from '@angular/material/expansion';
 import { PostServiceService } from '../post-service/post-service.service';
 import { Post, PostsData } from '../post-service/post.model';
-import { Subscription } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { AuthService } from '../../auth/service/auth.service';
+import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-post-list',
   imports: [
@@ -21,23 +15,26 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
     RouterLink,
     MatProgressSpinner,
     MatPaginatorModule,
+    MatButtonModule,
   ],
   templateUrl: './post-list.component.html',
   styleUrl: './post-list.component.css',
 })
-export class PostListComponent implements OnInit, OnDestroy {
+export class PostListComponent implements OnInit {
   panelOpenState = signal<boolean>(false);
   postSerivce = inject(PostServiceService);
   posts: Post[] = [];
-  private subscription: Subscription = new Subscription();
   isLoading = signal<boolean>(true);
   totalPosts = 0;
   postsPerPage = 2;
   currentPage = 0;
   pageSizeOptions = [1, 2, 5, 10];
+  private authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
+  isLoggedIn = signal<boolean>(false);
 
   ngOnInit(): void {
-    this.subscription = this.postSerivce
+    const postSubscription = this.postSerivce
       .getPostsListner()
       .subscribe((posts: PostsData) => {
         this.posts = posts.posts;
@@ -45,15 +42,25 @@ export class PostListComponent implements OnInit, OnDestroy {
         this.isLoading.set(false);
       });
     this.postSerivce.getPosts(this.postsPerPage, this.currentPage);
+
+    const authSubscription = this.authService
+      .getAuthListner()
+      .subscribe((isLoggedIn: boolean) => {
+        console.log('isLoggedIn in post list component', isLoggedIn);
+        this.isLoggedIn.set(isLoggedIn);
+      });
+
+    this.destroyRef.onDestroy(() => {
+      postSubscription.unsubscribe();
+      authSubscription.unsubscribe();
+    });
   }
   onDelete(id: string) {
     this.isLoading.set(true);
     console.log('deleting post', id);
     this.postSerivce.deletePost(id);
   }
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-  }
+
   handlePageEvent(event: PageEvent) {
     this.isLoading.set(true);
     console.log(event);

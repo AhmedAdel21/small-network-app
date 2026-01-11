@@ -33,7 +33,7 @@ export class LoginComponent implements OnInit {
         this.isLoading.set(false);
 
         if (isLoggedIn) {
-          this.router.navigate(['/posts']);
+          this.router.navigate(['/']);
         } else {
           this.router.navigate(['/login']);
         }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, Observable, pipe, Subject } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { AuthData, AuthDataResponse, AuthRequest } from './auth.model';
 import { HttpClient } from '@angular/common/http';
 import { API_URL } from '../../constants/network.constants';
@@ -9,7 +9,7 @@ import { API_URL } from '../../constants/network.constants';
 export class AuthService {
   private apiUrl = `${API_URL}/auth`;
   private authData: AuthData | null = null;
-  private authUpdated = new Subject<boolean>();
+  private authUpdated = new BehaviorSubject<boolean>(false);
   constructor(private http: HttpClient) {}
 
   notifyAuthListners(isLoggedIn: boolean) {
@@ -78,8 +78,9 @@ export class AuthService {
   }
   logout() {
     return this.http
-      .post<AuthDataResponse>(`${this.apiUrl}/logout`, {})
-      .pipe()
+      .post<AuthDataResponse>(`${this.apiUrl}/logout`, {
+        refreshToken: this.authData?.refreshToken,
+      })
       .subscribe((response: any) => {
         this.authData = null;
         this.notifyAuthListners(false);

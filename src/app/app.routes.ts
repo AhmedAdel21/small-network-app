@@ -6,6 +6,12 @@ import { SignupComponent } from './auth/signup/signup.component';
 
 export const routes: Routes = [
   {
+    path: '',
+    redirectTo: '/posts',
+    pathMatch: 'full',
+  },
+
+  {
     path: 'posts',
     component: PostListComponent,
   },

@@ -118,7 +118,7 @@ export class PostCreateComponent implements OnInit {
     });
 
     console.log('Post updated:', updatedPost);
-    this.router.navigate(['/posts']);
+    this.router.navigate(['/']);
   }
 
   private async createPost(): Promise<void> {
@@ -131,6 +131,6 @@ export class PostCreateComponent implements OnInit {
       image: this.form?.value.image,
     });
 
-    this.router.navigate(['/posts']);
+    this.router.navigate(['/']);
   }
 }
