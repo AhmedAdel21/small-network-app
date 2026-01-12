@@ -34,11 +34,11 @@ router.post("", checkAuth, upload.single("image"), async (req, res, next) => {
     title: req.body.title,
     description: req.body.description,
     imagePath: url + "/uploads/images/" + req.file.filename,
+    creator: req.userData.id,
   });
   try {
     const savedPost = await post.save();
     console.log("post saved successfully");
-    console.log("post", post);
     console.log("savedPost", savedPost);
     res.status(201).json({
       message: "Post added successfully",
@@ -49,8 +49,6 @@ router.post("", checkAuth, upload.single("image"), async (req, res, next) => {
       message: "Post addition failed",
     });
   }
-
-  console.log(post);
 });
 router.put("", checkAuth, upload.single("image"), async (req, res, next) => {
   console.log("put request received", req.body);
@@ -69,6 +67,7 @@ router.put("", checkAuth, upload.single("image"), async (req, res, next) => {
       title: req.body.title,
       description: req.body.description,
       imagePath: imagePath,
+      creator: req.userData.id,
     });
     console.log("post", post);
     const updatedPost = await Post.updateOne(
@@ -83,7 +82,7 @@ router.put("", checkAuth, upload.single("image"), async (req, res, next) => {
     );
     res.status(200).json({
       message: "Post updated successfully",
-      post: post,
+      post: updatedPost,
     });
   } catch (error) {
     res.status(500).json({

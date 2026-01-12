@@ -9,8 +9,8 @@ module.exports = (req, res, next) => {
       return res.sendStatus(401);
     }
     console.log("verifying token");
-    req.user = verifyAccessToken(token);
-    console.log("user verified", req.user);
+    req.userData = verifyAccessToken(token);
+    console.log("user verified", req.userData);
     next();
   } catch {
     res.sendStatus(403);

@@ -45,6 +45,7 @@ export class PostServiceService {
             title: post.title,
             description: post.description,
             image: post.imagePath,
+            creator: post.creator,
           };
         })
       )
@@ -67,18 +68,20 @@ export class PostServiceService {
           return {
             totalPosts: response.totalPosts,
             posts: response.posts.map((post: any) => {
+              console.log('post in getPosts service', post);
               return {
                 id: post._id,
                 title: post.title,
                 description: post.description,
                 image: post.imagePath,
+                creator: post.creator,
               };
             }),
           };
         })
       )
       .subscribe((response: PostsData) => {
-        console.log(response);
+        console.log('response in getPosts service', response);
         this.posts = response.posts;
         this.totalPosts = response.totalPosts;
 
@@ -130,6 +133,7 @@ export class PostServiceService {
             title: post.title,
             description: post.description,
             image: post.imagePath,
+            creator: post.creator,
           };
         })
       )
