@@ -36,10 +36,16 @@ export class AuthService {
   register(authData: AuthRequest) {
     return this.http
       .post<{ message: string }>(`${this.apiUrl}/register`, authData)
-      .subscribe(({ message }) => {
-        console.log('register message in service', message);
-
-        this.router.navigate(['/login']);
+      .subscribe({
+        next: ({ message }) => {
+          console.log('register message in service', message);
+          this.router.navigate(['/login']);
+        },
+        error: (error: any) => {
+          console.log('error in register service', error.error.message);
+          this.notifyAuthListners(false);
+          alert(error.error.message);
+        },
       });
   }
   login(authData: AuthRequest) {
@@ -56,21 +62,28 @@ export class AuthService {
           };
         })
       )
-      .subscribe((response: AuthData) => {
-        this.authData = response;
-        console.log('login auth data in service', this.authData);
-        if (
-          response.accessToken.length > 0 &&
-          response.refreshToken.length > 0
-        ) {
-          this.setAuthData(response);
+      .subscribe({
+        next: (response: AuthData) => {
+          this.authData = response;
+          console.log('login auth data in service', this.authData);
+          if (
+            response.accessToken.length > 0 &&
+            response.refreshToken.length > 0
+          ) {
+            this.setAuthData(response);
 
-          this.setAuthTimer(response.expiresIn);
+            this.setAuthTimer(response.expiresIn);
 
-          this.notifyAuthListners(true);
-        } else {
+            this.notifyAuthListners(true);
+          } else {
+            this.notifyAuthListners(false);
+          }
+        },
+        error: (error: any) => {
+          console.log('error in login service', error.error.message);
           this.notifyAuthListners(false);
-        }
+          alert(error.error.message);
+        },
       });
   }
   setAuthData(authData: AuthData) {
