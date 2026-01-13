@@ -27,6 +27,9 @@ export class AuthService {
   getAuthData(): AuthData | null {
     return this.authData;
   }
+  getId(): string | null {
+    return this.authData?.id ?? null;
+  }
   getToken(): string | null {
     return this.authData?.accessToken ?? null;
   }
@@ -75,6 +78,7 @@ export class AuthService {
     console.log('setting auth data in service', this.authData);
     localStorage.setItem('accessToken', authData.accessToken);
     localStorage.setItem('refreshToken', authData.refreshToken);
+    localStorage.setItem('id', authData.id);
     const now = new Date().getTime();
     const expiresInDate = new Date(now + authData.expiresIn * 1000);
     localStorage.setItem('expiresInDate', expiresInDate.toISOString());
@@ -83,11 +87,13 @@ export class AuthService {
     accessToken: string;
     refreshToken: string;
     expiresIn: number;
+    id: string;
   } | null {
     const accessToken = localStorage.getItem('accessToken');
     const refreshToken = localStorage.getItem('refreshToken');
     const expiresInDate = localStorage.getItem('expiresInDate');
-    if (!accessToken || !refreshToken || !expiresInDate) {
+    const id = localStorage.getItem('id');
+    if (!accessToken || !refreshToken || !expiresInDate || !id) {
       return null;
     }
     const now = new Date().getTime();
@@ -95,7 +101,7 @@ export class AuthService {
     if (expiresIn <= 0) {
       return null;
     }
-    return { accessToken, refreshToken, expiresIn: expiresIn / 1000 };
+    return { accessToken, refreshToken, expiresIn: expiresIn / 1000, id };
   }
   setAuthTimer(expiresIn: number) {
     console.log('setting auth timer in service', expiresIn);
@@ -110,7 +116,7 @@ export class AuthService {
       return;
     }
     this.authData = {
-      id: '',
+      id: authInformation.id,
       email: '',
       accessToken: authInformation.accessToken,
       refreshToken: authInformation.refreshToken,
@@ -127,10 +133,10 @@ export class AuthService {
 
     this.authData = null;
 
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('expiresInDate');
-
+    localStorage.removeItem('accessToken'); // remove access token from local storage
+    localStorage.removeItem('refreshToken'); // remove refresh token from local storage
+    localStorage.removeItem('expiresInDate'); // remove expires in date from local storage
+    localStorage.removeItem('id'); // remove id from local storage
     this.notifyAuthListners(false);
     this.router.navigate(['/login']);
   }

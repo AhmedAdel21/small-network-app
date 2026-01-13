@@ -32,7 +32,7 @@ export class PostListComponent implements OnInit {
   private authService = inject(AuthService);
   private destroyRef = inject(DestroyRef);
   isLoggedIn = signal<boolean>(false);
-
+  userId = this.authService.getId();
   ngOnInit(): void {
     const postSubscription = this.postSerivce
       .getPostsListner()

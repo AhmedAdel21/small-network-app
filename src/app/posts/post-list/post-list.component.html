@@ -15,7 +15,7 @@
     <div class="image-container">
       <img [src]="post.image" [alt]="post.title" />
     </div>
-    @if (isLoggedIn()) {
+    @if (isLoggedIn() && userId === post.creator) {
     <mat-action-row>
       <button mat-flat-button color="primary" [routerLink]="['/edit', post.id]">
         EDIT

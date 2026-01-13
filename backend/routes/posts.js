@@ -71,7 +71,7 @@ router.put("", checkAuth, upload.single("image"), async (req, res, next) => {
     });
     console.log("post", post);
     const updatedPost = await Post.updateOne(
-      { _id: post._id },
+      { _id: post._id, creator: post.creator },
       {
         $set: {
           title: post.title,
@@ -80,10 +80,17 @@ router.put("", checkAuth, upload.single("image"), async (req, res, next) => {
         },
       }
     );
-    res.status(200).json({
-      message: "Post updated successfully",
-      post: updatedPost,
-    });
+    console.log("updatedPost", updatedPost);
+    if (updatedPost.modifiedCount > 0) {
+      res.status(200).json({
+        message: "Post updated successfully",
+        post: post,
+      });
+    } else {
+      res.status(401).json({
+        message: "You are not authorized to update this post",
+      });
+    }
   } catch (error) {
     res.status(500).json({
       message: "Post update failed",
@@ -119,10 +126,17 @@ router.get("", async (req, res, next) => {
 router.delete("/:id", checkAuth, async (req, res, next) => {
   console.log("delete request received", req.params.id);
   try {
-    await Post.deleteOne({ _id: req.params.id });
-    res.status(200).json({
-      message: "Post deleted successfully",
-    });
+    const deletedPost = await Post.deleteOne({ _id: req.params.id, creator: req.userData.id });
+    console.log("deletedPost", deletedPost);
+    if (deletedPost.deletedCount > 0) {
+      res.status(200).json({
+        message: "Post deleted successfully",
+      });
+    } else {
+      res.status(401).json({
+        message: "You are not authorized to delete this post",
+      });
+    }
   } catch (error) {
     res.status(500).json({
       message: "Post deletion failed",
