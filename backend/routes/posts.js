@@ -81,7 +81,7 @@ router.put("", checkAuth, upload.single("image"), async (req, res, next) => {
       }
     );
     console.log("updatedPost", updatedPost);
-    if (updatedPost.modifiedCount > 0) {
+    if (updatedPost.modifiedCount > 0 || updatedPost.matchedCount > 0) {
       res.status(200).json({
         message: "Post updated successfully",
         post: post,
