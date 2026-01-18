@@ -1,6 +1,6 @@
 const http = require("http");
 const debug = require("debug")("node-angular");
-const app = require("./backend/app");
+const app = require("./app");
 require("dotenv").config();
 
 const normalizePort = (val) => {
@@ -50,6 +50,6 @@ const server = http.createServer(app);
 server.on("error", onError);
 server.on("listening", onListening);
 
-server.listen(port, () => {
+server.listen(port, '0.0.0.0', () => {
   console.log(`Server is running on port ${port}`);
 });
