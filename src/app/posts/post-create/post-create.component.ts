@@ -125,7 +125,7 @@ export class PostCreateComponent implements OnInit {
     console.log('Creating post...');
 
     const response = await this.postService.addPost({
-      id: crypto.randomUUID(),
+      id: '',
       title: this.form?.value.title || '',
       description: this.form?.value.content || '',
       image: this.form?.value.image,

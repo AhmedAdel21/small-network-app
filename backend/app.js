@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(
   "/uploads/images",
-  express.static(path.join("backend", "uploads", "images"))
+  express.static(path.join("uploads", "images"))
 );
 
 app.use((req, res, next) => {
